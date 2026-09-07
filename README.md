@@ -22,13 +22,6 @@ pip install -r requirements.txt
 python main.py
 ```
 
-## 重新打包 exe
-
-```powershell
-cd "C:\Users\Yubin\OneDrive\桌面\workshop\Live-translation"
-powershell -ExecutionPolicy Bypass -File .\build.ps1
-```
-
 1. 在控制視窗選「你正在出聲的喇叭」
 2. 模型建議先用 `base`；要更準再改 `small` / `medium`（會比較慢）
 3. 來源語言不確定就用 `auto`
