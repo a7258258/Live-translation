@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import multiprocessing
 import queue
 import threading
 import tkinter as tk
@@ -15,7 +16,7 @@ from overlay import SubtitleOverlay
 class App:
     def __init__(self, root: tk.Tk):
         self.root = root
-        self.root.title("即時中文字幕")
+        self.root.title("Live-translation")
         self.root.geometry("420x320")
         self.root.resizable(False, False)
 
@@ -146,4 +147,5 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    multiprocessing.freeze_support()
     main()

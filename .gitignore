@@ -5,6 +5,7 @@ __pycache__/
 *.pyo
 .env
 .whisper/
-*.pt
-*.bin
 .DS_Store
+build/
+whisper-models/
+dist/LiveTranslation/
