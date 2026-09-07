@@ -24,41 +24,6 @@ python main.py
 4. 按「開始翻譯」，再開影片（聲音走系統喇叭，不要只走耳機且選錯裝置）
 5. 字幕出現在螢幕底部；控制視窗可停止或調字體
 
-## Git 怎麼連這個專案
-
-這個資料夾已經 `git init`，目前**還沒有遠端（GitHub）**。你這台是原生 Windows，Cursor 的 Origin（`origin.cursor.com`）**還不能用**，請用 GitHub。
-
-### 第一次把專案推到 GitHub
-
-1. 到 [GitHub New repository](https://github.com/new) 建一個空 repo（不要勾 README）
-2. 在專案目錄執行：
-
-```powershell
-cd "C:\Users\Yubin\OneDrive\桌面\workshop\live-zh-subtitles"
-git add .
-git commit -m "Add live Chinese subtitle overlay"
-git remote add origin https://github.com/你的帳號/live-zh-subtitles.git
-git push -u origin main
-```
-
-把 `你的帳號` 換成你的 GitHub 帳號。之後改完程式：
-
-```powershell
-git add .
-git commit -m "說明這次改了什麼"
-git push
-```
-
-### 如果是別人已經有的 GitHub repo
-
-```powershell
-git clone https://github.com/帳號/live-zh-subtitles.git
-cd live-zh-subtitles
-```
-
-本機舊專案 `Translate`（`a7258258/Instant-Translation`）是終端機印翻譯、還要 VB-CABLE。這個專案改成直接聽系統喇叭，並把字幕投影到螢幕上。
-
-## 注意
 
 - 耳機聽影片時，請選「那顆耳機／喇叭」當播放裝置，否則 loopback 會是空的。
 - 第一次載入 `base` 模型可能要幾分鐘。
