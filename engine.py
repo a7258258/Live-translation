@@ -3,9 +3,9 @@
 from __future__ import annotations
 
 from faster_whisper import WhisperModel
-from deep_translator import GoogleTranslator
 
 from paths import app_dir
+from translator import Translator
 
 
 class TranslateEngine:
@@ -24,7 +24,7 @@ class TranslateEngine:
             compute_type="int8",
             download_root=str(model_dir),
         )
-        self._translator = GoogleTranslator(source="auto", target="zh-TW")
+        self._translator = Translator()
 
     def transcribe_and_translate(self, audio_16k) -> tuple[str, str]:
         segments, info = self._model.transcribe(
@@ -36,5 +36,6 @@ class TranslateEngine:
         original = "".join(seg.text for seg in segments).strip()
         if not original:
             return "", ""
-        chinese = self._translator.translate(original) or ""
+        source = self.source_language or info.language or "auto"
+        chinese = self._translator.to_chinese(original, source)
         return original, chinese

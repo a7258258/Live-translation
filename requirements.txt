@@ -1,4 +1,3 @@
 numpy
 soundcard
 faster-whisper
-deep-translator
