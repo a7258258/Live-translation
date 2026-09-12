@@ -5,7 +5,7 @@ from __future__ import annotations
 from faster_whisper import WhisperModel
 
 from paths import app_dir
-from translator import Translator
+from translator import Translator, check_ollama_ready
 
 
 class TranslateEngine:
@@ -16,6 +16,7 @@ class TranslateEngine:
 
     def __init__(self, model_size: str = "base", source_language: str | None = None):
         self.source_language = source_language or None
+        check_ollama_ready()
         model_dir = app_dir() / "whisper-models"
         model_dir.mkdir(parents=True, exist_ok=True)
         self._model = WhisperModel(
@@ -37,5 +38,7 @@ class TranslateEngine:
         if not original:
             return "", ""
         source = self.source_language or info.language or "auto"
-        chinese = self._translator.to_chinese(original, source)
-        return original, chinese
+        return self._translator.correct_and_translate(original, source)
+
+    def reset_context(self) -> None:
+        self._translator.reset()

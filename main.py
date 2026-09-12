@@ -22,6 +22,7 @@ class App:
 
         self.audio_queue: queue.Queue = queue.Queue(maxsize=3)
         self.text_queue: queue.Queue = queue.Queue(maxsize=8)
+        self.status_queue: queue.Queue = queue.Queue()
         self.capture: LoopbackCapture | None = None
         self.engine: TranslateEngine | None = None
         self.running = False
@@ -34,7 +35,10 @@ class App:
         self.speaker_choice = tk.StringVar(value="")
 
         self._build_ui()
-        SubtitleOverlay(self.root, self.text_queue, self.show_original, self.font_size)
+        self.overlay = SubtitleOverlay(
+            self.root, self.text_queue, self.show_original, self.font_size
+        )
+        self._poll_status()
 
     def _build_ui(self) -> None:
         pad = {"padx": 12, "pady": 6}
@@ -91,9 +95,12 @@ class App:
     def start(self) -> None:
         if self.running:
             return
+        self.overlay.clear()
+        self._clear_queue(self.audio_queue)
+        self._clear_queue(self.text_queue)
         lang = self.language.get()
         source = None if lang == "auto" else lang
-        self.status.set("正在載入 Whisper 模型，第一次會下載，請稍候…")
+        self.status.set("正在檢查 Ollama 並載入 Whisper 模型，請稍候…")
         self.root.update_idletasks()
         try:
             self.engine = TranslateEngine(self.model_size.get(), source)
@@ -115,6 +122,11 @@ class App:
         self.running = False
         if self.capture:
             self.capture.stop()
+        if self.engine:
+            self.engine.reset_context()
+        self.overlay.clear()
+        self._clear_queue(self.audio_queue)
+        self._clear_queue(self.text_queue)
         self.start_btn.config(state="normal")
         self.stop_btn.config(state="disabled")
         self.status.set("已停止")
@@ -128,15 +140,36 @@ class App:
             if not self.engine:
                 continue
             try:
+                self.status_queue.put("正在辨識並依照上下文修正翻譯…")
                 original, chinese = self.engine.transcribe_and_translate(chunk)
             except Exception as exc:
-                self.status.set(f"翻譯錯誤：{exc}")
+                self.status_queue.put(f"翻譯錯誤：{exc}")
                 continue
             if original or chinese:
                 try:
                     self.text_queue.put_nowait((original, chinese))
                 except queue.Full:
                     pass
+                self.status_queue.put("字幕已新增，正在等待下一句…")
+
+    @staticmethod
+    def _clear_queue(target: queue.Queue) -> None:
+        while True:
+            try:
+                target.get_nowait()
+            except queue.Empty:
+                break
+
+    def _poll_status(self) -> None:
+        latest = None
+        while True:
+            try:
+                latest = self.status_queue.get_nowait()
+            except queue.Empty:
+                break
+        if latest is not None:
+            self.status.set(latest)
+        self.root.after(120, self._poll_status)
 
 
 def main() -> None:
